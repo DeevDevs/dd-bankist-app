@@ -1,0 +1,23 @@
+{
+  "name": "bankist-app",
+  "version": "1.0.0",
+  "description": "Bankist Application to practice JS skills",
+  "default": "index.html",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html --dist-dir ./dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DeevDevs/bankist-app.git"
+  },
+  "author": "Dmitriy Vnuchkov (with Jonas Schmedtmann during the course)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DeevDevs/bankist-app/issues"
+  },
+  "homepage": "https://github.com/DeevDevs/bankist-app#readme",
+  "devDependencies": {
+    "parcel": "^2.5.0"
+  }
+}
