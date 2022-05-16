@@ -617,8 +617,8 @@ const price = 15_00;
 const price2 = 1_500;
 
 const price3 = 15_00 + 34_0; // we can even sum them up
-console.log(price3); // 1840
+// console.log(price3); // 1840
 
-console.log(Number('23000')); // 23000
-console.log(Number('23_000')); // NaN
-console.log(parseInt('23_000')); // 23 only
+// console.log(Number('23000')); // 23000
+// console.log(Number('23_000')); // NaN
+// console.log(parseInt('23_000')); // 23 only
