@@ -3,7 +3,7 @@
 const account1 = {
   owner: 'Jonas Schmedtmann',
   movements: [200, 455.23, -306.5, 25000, -642.21, -133.9, 79.97, 1300],
-  interestRate: 1.2, // %
+  interestRate: 1.2,
   pin: 1111,
 
   movementsDates: [
@@ -17,7 +17,7 @@ const account1 = {
     '2021-06-03T10:51:36.790Z',
   ],
   currency: 'EUR',
-  locale: 'pt-PT', // de-DE
+  locale: 'pt-PT',
 };
 
 const account2 = {
@@ -72,16 +72,27 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 // Functions
 
-//Function to format Sums according to the Currency
+/**
+ * formats sums according to the Currency (форматирует суммы в соответствии с валютой)
+ * @param {number, object}
+ * @returns {string}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 const formatCurrency = function (num, acc) {
   return new Intl.NumberFormat(acc.locale, {
     style: 'currency',
     currency: acc.currency,
   }).format(num);
-}; // JONAS, however, suggested to make it more universal with such arguments as - value, locale and currency... I decided to leave it as it is, through the account
+};
 
-//Function for the movements, which is used in the displayMovements function
+/**
+ * formats sums according to the Currency (форматирует суммы в соответствии с валютой)
+ * @param {string, string}
+ * @returns {string}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 const formatMovementDate = function (date, locale) {
+  console.log(locale);
   const calcDaysPassed = (date1, date2) =>
     Math.round(Math.abs(date2 - date1) / (1000 * 24 * 60 * 60));
   const daysPassed = calcDaysPassed(new Date(), date);
@@ -97,28 +108,25 @@ const formatMovementDate = function (date, locale) {
     year: 'numeric',
   };
   return new Intl.DateTimeFormat(locale, options).format(date);
-  // const day = `${date.getDate()}`.padStart(2, 0);
-  // const month = `${date.getMonth() + 1}`.padStart(2, 0);
-  // const year = date.getFullYear();
-  // return `${day}/${month}/${year}`;
 };
 
+/**
+ * displays account activity in a required way - sorted or not (отображает историю аккаунта в запрошенном формате - сортированные или нет)
+ * @param {object, boolean}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 const displayMovements = function (acc, sort = false) {
-  containerMovements.innerHTML = ''; // We can use innerHTML to address all the content (even HTML tags). Later, we can use it to show the content of the HTML in console.
-
-  //Below we use the SLICE method to create the copy of the original movements array. Hence, we will not mutate the original array with sort, just mutate the copy.
+  containerMovements.innerHTML = '';
+  // check if we have to sort the account history (проверяет, нужно ли сортировать историю аккаунта)
   const movs = sort
     ? acc.movements.slice().sort((a, b) => a - b)
-    : acc.movements; // By default, sort is set to false. Hence, the default movements array is use unless we press the SORT button
-
+    : acc.movements;
+  // create and display the activities (создает и отображает историю аккаунта)
   movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
-
-    //Here we extract Date of the Movement
     const movDate = new Date(acc.movementsDates[i]);
-
     const displayDate = formatMovementDate(movDate, acc.locale);
-
     const html = `        
     <div class="movements__row">
       <div class="movements__type movements__type--${type}">${
@@ -131,13 +139,23 @@ const displayMovements = function (acc, sort = false) {
   });
 };
 
-// Here we count the total balance of the user
+/**
+ * counts the user balance (считает общую сумму на балансе пользователя)
+ * @param {object}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 const countDisplayBalance = function (acc) {
   acc.balance = acc.movements.reduce((balance, value) => balance + value, 0);
   labelBalance.textContent = `${formatCurrency(acc.balance, acc)}`;
 };
 
-//Here we count total income, total expenses, and interest
+/**
+ * count total income, total expenses, and interest (подсчитывает общий доход, расходы, и интерес)
+ * @param {object}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 const calcDisplaySummary = function (account) {
   const incomes = account.movements
     .filter(mov => mov > 0)
@@ -149,7 +167,7 @@ const calcDisplaySummary = function (account) {
     .filter(mov => mov > 0)
     .map(deposit => (deposit * account.interestRate) / 100)
     .filter(
-      interest => interest >= 1 // I decided to add a filter here, that excludes all the interest below 1EUR. Minimum 1EUR is required.
+      interest => interest >= 1 // Minimum 1EUR is required.
     )
     .reduce((accum, interest) => accum + interest, 0);
   labelSumIn.textContent = `${formatCurrency(incomes, account)}`;
@@ -157,7 +175,12 @@ const calcDisplaySummary = function (account) {
   labelSumInterest.textContent = `${formatCurrency(interest, account)}`;
 };
 
-// Here we have created usernames for each account
+/**
+ * usernames are created (создаются имена пользователей)
+ * @param {array}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 const createUsernames = function (accs) {
   accs.forEach(account => {
     account.username = account.owner
@@ -169,56 +192,66 @@ const createUsernames = function (accs) {
 };
 createUsernames(accounts);
 
+/**
+ * supporting function that updates the displayed information (вспомогательная функция, которая обновляет отображаемые данные)
+ * @param {object}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 const updateUI = acc => {
-  //Display movements
   displayMovements(acc);
-  //Display balance
   countDisplayBalance(acc);
-  //Display summary
   calcDisplaySummary(acc);
 };
 
-// Here we have the timer settings
+/**
+ * creates a timer that gets updates after every completed action made by the user (создает таймер и обновляет его после каждого законченного действия пользователя)
+ * @param {}
+ * @returns {function}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 const startLogoutTimer = function () {
+  // creates a timer function for animated countdown (создает анимированный обратный отсчет)
   const tick = function () {
     const min = String(Math.floor(time / 60)).padStart(2, 0);
     const sec = String(time % 60).padStart(2, 0);
-    //print the remaining time
+    // print the remaining time (отображает оставшееся время)
     labelTimer.textContent = `${min}:${sec}`;
-    //logout, when the time is up
+    // logout, when the time is up (выходит из меню пользователя по окончании 5 минут)
     if (time === -1) {
       clearInterval(timer);
       containerApp.style.opacity = '0';
       labelWelcome.textContent = 'Log in to get started';
     }
     time--;
-  }; // We put this function here to first run it once before the interval begins. See below...
-  //set timer to 5 minutes
+  };
   let time = 300;
-  //call the timer every second
-  tick(); // Here we call it before the interval just to display the timer at its initial stage
+  tick();
+  // runs the timer function every second (каждую секунду активирует функцию таймера)
   const timer = setInterval(tick, 1000);
-  return timer; // We do it to be able to reach it outside the function (this is to fix the problem of two timers running simultaneously)
+  return timer;
 };
 
-//Here we run the app and display interface
+/**
+ * runs the application and displays interface (запускает приложение и отображает интерфейс)
+ * @param {event object}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 let currentAccount, timer;
 btnLogin.addEventListener('click', function (e) {
-  //This line BELOW is how we prevent the default feature of the form button to reload the page (submit) whenever the button is pressed
   e.preventDefault();
+  // check if such user exists (проверяет, есть ли такой пользователь)
   currentAccount = accounts.find(
     acc => acc.username === inputLoginUsername.value
   );
-
   if (currentAccount?.pin === +inputLoginPin.value) {
-    // The question that is put after the 'currentAccount' is optional chaining
-    // Now I Display UI and message
+    // display welcome message (отображает приветствие)
     labelWelcome.textContent = `Welcome back, ${
       currentAccount.owner.split(' ')[0]
     }`;
     containerApp.style.opacity = '100';
-
-    // Here we create current Date and Time
+    // display current Date and Time (отображает время на данный момент)
     const now = new Date();
     const options = {
       hour: 'numeric',
@@ -232,25 +265,25 @@ btnLogin.addEventListener('click', function (e) {
       currentAccount.locale,
       options
     ).format(now);
-
-    // Here we clear input fields first
+    // clear input fields (опустошает поля ввода данных)
     inputLoginUsername.value = '';
     inputLoginPin.value = '';
-    //OR
-    inputLoginUsername.value = inputLoginPin.value = '';
-    inputLoginUsername.blur(); // This is how we make the field lose focus
-    inputLoginPin.blur(); // If cursor was there, it is gone now
-
-    //Here we check if previous timer was running, clear it, and then initialize the new timer
+    inputLoginUsername.blur();
+    inputLoginPin.blur();
+    // run the timer (запускает таймер)
     if (timer) clearInterval(timer);
     timer = startLogoutTimer();
-
-    //Here we run all the UI functions to display their results
+    // run UI functions (запускает UI)
     updateUI(currentAccount);
   }
 });
 
-//Money transfer/loan/closeAcc Functions
+/**
+ * transfers money to another account (переводит деньги на счет другого аккаунта)
+ * @param {event object}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
   const amount = +inputTransferAmount.value;
@@ -266,41 +299,33 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.balance >= amount &&
     receiverAcc?.username !== currentAccount.username
   ) {
-    //Doing the transfer
     receiverAcc.movements.push(amount);
     currentAccount.movements.push(-amount);
-
-    //Adding a Transfer Date
     receiverAcc.movementsDates.push(new Date().toISOString());
     currentAccount.movementsDates.push(new Date().toISOString());
-    //OR
-    // const isd = new Date().toISOString();
-    // receiverAcc.movementsDates.push(isd);
-    // currentAccount.movementsDates.push(isd);
 
     updateUI(currentAccount);
-
-    //Reset Timer
     clearInterval(timer);
     timer = startLogoutTimer();
   }
 });
 
+/**
+ * takes a loan from the bank (одалживает деньги у банка)
+ * @param {event object}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
   const loan = Math.floor(inputLoanAmount.value);
   if (loan > 0 && currentAccount.movements.some(mov => mov >= loan / 10)) {
-    // giving a loan with some delay
+    // giving a loan with some delay (для реалистичности, добавляет задержку перед выдачей денег)
     setTimeout(function () {
       currentAccount.movements.push(loan);
-      //adding a loan date
+      // adding a loan date (добавляет дату перевода)
       currentAccount.movementsDates.push(new Date().toISOString());
-      //OR
-      // const isd = new Date().toISOString();
-      // currentAccount.movementsDates.push(isd);
       updateUI(currentAccount);
-
-      //Reset Timer
       clearInterval(timer);
       timer = startLogoutTimer();
     }, 2500);
@@ -309,27 +334,38 @@ btnLoan.addEventListener('click', function (e) {
   inputLoanAmount.blur();
 });
 
+/**
+ * closes the bank account (закрывает данный аккаут)
+ * @param {event object}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
   if (
     inputCloseUsername.value === currentAccount.username &&
     +inputClosePin.value === currentAccount.pin
   ) {
-    //Delete User
+    // delete user (удаляет аккаунт пользователя)
     const index = accounts.findIndex(
       acc => acc.username === currentAccount.username
-    ); // It has the same function as indexOf, just much more flexible and complex.
+    );
     accounts.splice(index, 1);
-    //Hide UI
+    //Hide UI (скрывает интерфейс)
     containerApp.style.opacity = '0';
   }
-  // Empty fields
+  // Empty fields (опустошает поля ввода)
   inputCloseUsername.value = inputClosePin.value = '';
   inputCloseUsername.blur();
   inputClosePin.blur();
 });
 
-//This button makes the movements sorted or not. The SORTING is inside the DisplayMovements function and is activated when sorted is TRUE... However, with the same button we can constantly switch the value of 'sorted' and deactivate that function
+/**
+ * sorts the account history (запускает сортировку истории аккаунта)
+ * @param {event object}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 let sorted = false;
 btnSort.addEventListener('click', function (e) {
   e.preventDefault();

@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/DeevDevs/bankist-app.git"
   },
-  "author": "Dmitriy Vnuchkov (with Jonas Schmedtmann during the course)",
+  "author": "Dmitriy Vnuchkov (based on Jonas Shmedtmann's course)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/DeevDevs/bankist-app/issues"
