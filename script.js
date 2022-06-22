@@ -92,7 +92,6 @@ const formatCurrency = function (num, acc) {
  * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
  */
 const formatMovementDate = function (date, locale) {
-  console.log(locale);
   const calcDaysPassed = (date1, date2) =>
     Math.round(Math.abs(date2 - date1) / (1000 * 24 * 60 * 60));
   const daysPassed = calcDaysPassed(new Date(), date);
